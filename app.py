@@ -21,18 +21,55 @@ def get_weather():
     response = requests.get(url)
     data = response.json()
     
-    # 解析明日天氣（臺北市的第一筆預報）
-    forecast = data["records"]["location"][0]["weatherElement"]
-    weather = forecast[0]["time"][1]["parameter"]["parameterName"]  # 天氣現象
-    rain_prob = forecast[1]["time"][1]["parameter"]["parameterName"]  # 降雨機率
-    min_temp = forecast[2]["time"][1]["parameter"]["parameterName"]  # 最低溫
-    max_temp = forecast[4]["time"][1]["parameter"]["parameterName"]  # 最高溫
+    # 解析天氣資料
+    location = data["records"]["location"][0]
+    elements = {elem["elementName"]: elem["time"] for elem in location["weatherElement"]}
     
-    return f"🌤️ 台北明日天氣預報\n天氣: {weather}\n降雨機率: {rain_prob}%\n溫度: {min_temp}°C ~ {max_temp}°C"
+    # 取得明日白天時段（06:00-18:00）的資料
+    tomorrow_day = {
+        "Wx": elements["Wx"][1]["parameter"]["parameterName"],  # 天氣現象
+        "PoP": elements["PoP"][1]["parameter"]["parameterName"],  # 降雨機率
+        "MinT": elements["MinT"][1]["parameter"]["parameterName"],  # 最低溫
+        "MaxT": elements["MaxT"][1]["parameter"]["parameterName"],  # 最高溫
+        "CI": elements["CI"][1]["parameter"]["parameterName"]  # 舒適度
+    }
+    
+    # 組合 Emoji 對應表
+    weather_icons = {
+        "晴": "☀️",
+        "多雲": "⛅",
+        "陰": "☁️",
+        "雨": "🌧️",
+        "雷": "⛈️",
+        "晴時多雲": "🌤️"
+    }
+    
+    # 自動匹配 Emoji
+    icon = "🌫️"
+    for key in weather_icons:
+        if key in tomorrow_day["Wx"]:
+            icon = weather_icons[key]
+            break
+    
+    # 組合成易讀訊息
+    message = (
+        f"{icon} 【台北明日天氣預報】\n"
+        f"▸ 天氣狀況：{tomorrow_day['Wx']}\n"
+        f"▸ 降雨機率：{tomorrow_day['PoP']}%\n"
+        f"▸ 溫度範圍：{tomorrow_day['MinT']}°C ~ {tomorrow_day['MaxT']}°C\n"
+        f"▸ 舒適度：{tomorrow_day['CI']}\n"
+        "──────────────────\n"
+        "⏰ 預報時段：06:00 ~ 18:00\n"
+        "📅 資料來源：中央氣象署"
+    )
+
+    if int(tomorrow_day["PoP"]) > 50:
+        message += "\n⚠️ 提醒：明日降雨機率較高，建議攜帶雨具！"
+    return message
 
 @app.route("/send-weather", methods=["GET"])
 def send_weather():
-    weather_info = get_weather()
+    weather_info = get_weather()  # 取得美化後的天氣訊息
     line_bot_api.push_message(USER_ID, TextSendMessage(text=weather_info))
     return "天氣訊息已發送！"
 

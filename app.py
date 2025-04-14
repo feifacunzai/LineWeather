@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
 import requests
+from urllib3.util.retry import Retry
+from requests.adapters import HTTPAdapter
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import (
     MessageEvent,

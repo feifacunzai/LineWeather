@@ -1,7 +1,13 @@
 from flask import Flask, request
 import requests
 from linebot import LineBotApi, WebhookHandler
-from linebot.models import MessageEvent, TextMessage, TextSendMessage
+from linebot.models import (
+    MessageEvent,
+    TextMessage,
+    SourceGroup,  # 用於群組訊息
+    SourceRoom,   # 用於聊天室訊息
+    SourceUser    # 用於個人訊息
+)
 import os
 from dotenv import load_dotenv
 
@@ -88,19 +94,26 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
-    user_id = event.source.user_id
-
-    if isinstance(event.source, GroupSource):
+    # 判斷訊息來源類型
+    if isinstance(event.source, SourceGroup):
         group_id = event.source.group_id
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=f"你的正確 GROUP_ID 是：{group_id}")
         )
-        
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=f"你的正確 USER_ID 是：{user_id}")
-    )
+        # 這裡可以儲存 group_id 供後續使用
+    elif isinstance(event.source, SourceRoom):
+        room_id = event.source.room_id
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=f"你的正確 ROOM_ID 是：{room_id}")
+        )
+    elif isinstance(event.source, SourceUser):
+        user_id = event.source.user_id
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=f"你的正確 USER_ID 是：{user_id}")
+        )
 
 if __name__ == "__main__":
     app.run(port=5000)

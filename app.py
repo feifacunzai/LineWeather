@@ -29,11 +29,24 @@ line_bot_api = LineBotApi(LINE_TOKEN)
 handler = WebhookHandler(LINE_SECRET)
 
 def get_weather():
-    session = requests.session()
     url = f"https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization={CWA_API_KEY}&locationName=臺北市"
-    session.keey_alive = False
-    session.proxies = {"https": "60.248.77.86:555"}
-    response = session.get(url)
+
+    # 設定重試策略
+    session = requests.Session()
+    retries = Retry(
+        total=10,  # 最大重試次數
+        backoff_factor=1,  # 重試間隔
+        status_forcelist=[500, 502, 503, 504]  # 遇到這些狀態碼時重試
+    )
+    session.mount('https://', HTTPAdapter(max_retries=retries))
+
+    try:
+        response = session.get(url, timeout=5)  # 設定超時
+        response.raise_for_status()  # 檢查 HTTP 錯誤
+    except requests.exceptions.RequestException as e:
+        print(f"API 請求失敗: {e}")
+        return None
+
     data = response.json()
     
     # 解析天氣資料

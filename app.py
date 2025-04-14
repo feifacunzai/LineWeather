@@ -89,6 +89,13 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     user_id = event.source.user_id
+
+    if isinstance(event.source, GroupSource):
+        group_id = event.source.group_id
+        line_bot_api.reply_message(
+            event.reply_token,
+            TextSendMessage(text=f"你的正確 GROUP_ID 是：{group_id}")
+        
     line_bot_api.reply_message(
         event.reply_token,
         TextSendMessage(text=f"你的正確 USER_ID 是：{user_id}")

@@ -4,6 +4,7 @@ from linebot import LineBotApi, WebhookHandler
 from linebot.models import (
     MessageEvent,
     TextMessage,
+    TextSendMessage,
     SourceGroup,  # 用於群組訊息
     SourceRoom,   # 用於聊天室訊息
     SourceUser    # 用於個人訊息

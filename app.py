@@ -35,6 +35,7 @@ def get_weather():
 
     # 設定重試策略
     session = requests.Session()
+    session.proxies = {"https": "60.249.94.59:3128"}
     retries = Retry(
         total=10,  # 最大重試次數
         backoff_factor=1,  # 重試間隔

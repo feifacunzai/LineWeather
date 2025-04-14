@@ -71,8 +71,8 @@ echo "USER_ID=YOUR_USER_ID" >> .env
 ---
 
 <p align="center">
-  <img src="https://img.shields.io/github/last-commit/yourusername/line-weather-bot" alt="最後更新">
-  <img src="https://img.shields.io/github/issues/yourusername/line-weather-bot" alt="問題">
+  <img src="https://img.shields.io/github/last-commit/feifacunzai/LineWeather" alt="最後更新">
+  <img src="https://img.shields.io/github/issues/feifacunzai/LineWeather" alt="問題">
   <img src="https://img.shields.io/badge/狀態-運作中-brightgreen" alt="狀態">
 </p>
 

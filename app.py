@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, jsonify
 import requests
 from linebot import LineBotApi, WebhookHandler
 from linebot.models import (
@@ -21,6 +21,9 @@ LINE_TOKEN = os.getenv("LINE_TOKEN")
 LINE_SECRET = os.getenv("LINE_SECRET")
 CWA_API_KEY = os.getenv("CWA_API_KEY")
 USER_ID = os.getenv("USER_ID")  # 你的 LINE User ID
+
+# 開關狀態儲存
+callback_enabled = os.getenv('CALLBACK_ENABLED', 'true').lower() == 'true'
 
 line_bot_api = LineBotApi(LINE_TOKEN)
 handler = WebhookHandler(LINE_SECRET)
@@ -98,23 +101,29 @@ def handle_message(event):
     # 判斷訊息來源類型
     if isinstance(event.source, SourceGroup):
         group_id = event.source.group_id
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=f"你的正確 GROUP_ID 是：{group_id}")
-        )
+        print(f"群組 ID: {group_id}")
+        if callback_enabled:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=f"你的正確 GROUP_ID 是：{group_id}")
+            )
         # 這裡可以儲存 group_id 供後續使用
     elif isinstance(event.source, SourceRoom):
         room_id = event.source.room_id
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=f"你的正確 ROOM_ID 是：{room_id}")
-        )
+        print(f"聊天室 ID: {room_id}")
+        if callback_enabled:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=f"你的正確 ROOM_ID 是：{room_id}")
+            )
     elif isinstance(event.source, SourceUser):
         user_id = event.source.user_id
-        line_bot_api.reply_message(
-            event.reply_token,
-            TextSendMessage(text=f"你的正確 USER_ID 是：{user_id}")
-        )
+        print(f"用戶 ID: {user_id}")
+        if callback_enabled:
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=f"你的正確 USER_ID 是：{user_id}")
+            )
 
 if __name__ == "__main__":
     app.run(port=5000)

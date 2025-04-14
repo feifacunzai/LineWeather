@@ -29,8 +29,11 @@ line_bot_api = LineBotApi(LINE_TOKEN)
 handler = WebhookHandler(LINE_SECRET)
 
 def get_weather():
+    session = requests.session()
     url = f"https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization={CWA_API_KEY}&locationName=臺北市"
-    response = requests.get(url)
+    session.keey_alive = False
+    session.proxies = {"https": "60.248.77.86:555"}
+    response = session.get(url)
     data = response.json()
     
     # 解析天氣資料

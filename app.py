@@ -95,6 +95,7 @@ def handle_message(event):
         line_bot_api.reply_message(
             event.reply_token,
             TextSendMessage(text=f"你的正確 GROUP_ID 是：{group_id}")
+        )
         
     line_bot_api.reply_message(
         event.reply_token,

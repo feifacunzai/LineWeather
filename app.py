@@ -11,10 +11,12 @@ app = Flask(__name__)
 
 # 從環境變數讀取 LINE Token 和 CWA API Key
 LINE_TOKEN = os.getenv("LINE_TOKEN")
+LINE_SECRET = os.getenv("LINE_SECRET")
 CWA_API_KEY = os.getenv("CWA_API_KEY")
 USER_ID = os.getenv("USER_ID")  # 你的 LINE User ID
 
 line_bot_api = LineBotApi(LINE_TOKEN)
+handler = WebhookHandler(LINE_SECRET)
 
 def get_weather():
     url = f"https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001?Authorization={CWA_API_KEY}&locationName=臺北市"
@@ -72,6 +74,25 @@ def send_weather():
     weather_info = get_weather()  # 取得美化後的天氣訊息
     line_bot_api.push_message(USER_ID, TextSendMessage(text=weather_info))
     return "天氣訊息已發送！"
+
+@app.route("/callback", methods=['POST'])
+def callback():
+    signature = request.headers['X-Line-Signature']
+    body = request.get_data(as_text=True)
+    try:
+        handler.handle(body, signature)
+    except Exception as e:
+        print(e)
+        return "Error", 400
+    return "OK"
+
+@handler.add(MessageEvent, message=TextMessage)
+def handle_message(event):
+    user_id = event.source.user_id
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text=f"你的正確 USER_ID 是：{user_id}")
+    )
 
 if __name__ == "__main__":
     app.run(port=5000)

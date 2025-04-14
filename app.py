@@ -43,7 +43,7 @@ def get_weather():
     session.mount('https://', HTTPAdapter(max_retries=retries))
 
     try:
-        response = session.get(url, timeout=5)  # 設定超時
+        response = session.get(url, timeout=30)  # 設定超時
         response.raise_for_status()  # 檢查 HTTP 錯誤
     except requests.exceptions.RequestException as e:
         print(f"API 請求失敗: {e}")

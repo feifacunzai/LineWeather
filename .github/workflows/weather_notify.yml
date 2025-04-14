@@ -1,0 +1,14 @@
+name: Send Weather Notification
+
+on:
+  schedule:
+    - cron: "0 15 * * *"  # UTC 15:00 = 台灣 23:00
+  workflow_dispatch:  # 允許手動觸發
+
+jobs:
+  send-weather:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger API
+        run: |
+          curl -X GET "https://lineweather-evyg.onrender.com/send-weather"
